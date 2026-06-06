@@ -1,19 +1,19 @@
 import os
-from groq import Groq
+from groq import AsyncGroq
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
-def explain_impact(changed_file, affected_files):
+async def explain_impact(changed_file, affected_files):
     """
     Changed file aur affected files leta hai —
     Groq AI se plain English explanation maangta hai.
     """
 
     if not affected_files:
-        return "No impact detected — this file has no dependents."
+        return "✅ No impact detected — this file has no dependents."
 
     prompt = f"""
     You are an expert software engineer reviewing code changes.
@@ -29,9 +29,11 @@ def explain_impact(changed_file, affected_files):
     
     Keep explanation clear, concise, and helpful.
     Use simple language — not every developer is senior.
+    Do not use markdown formatting like ** or `` in your response.
+    Write in plain paragraphs.
     """
 
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {"role": "user", "content": prompt}
