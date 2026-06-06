@@ -3,7 +3,7 @@ import { useState } from "react"
 const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
 function App() {
-  const [projectPath, setProjectPath] = useState("")
+  const [githubUrl, setGithubUrl] = useState("")
   const [changedFile, setChangedFile] = useState("")
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -16,13 +16,20 @@ function App() {
 
     try {
       const response = await fetch(
-        `${API_URL}/analyze?project_path=${encodeURIComponent(projectPath)}&changed_file=${encodeURIComponent(changedFile)}`,
+        `${API_URL}/analyze?github_url=${encodeURIComponent(githubUrl)}&changed_file=${encodeURIComponent(changedFile)}`,
         { method: "POST" }
       )
+
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.detail || "Something went wrong")
+      }
+
       const data = await response.json()
       setResult(data)
+
     } catch (err) {
-      setError("Could not connect to Ripple API. Is the server running?")
+      setError(err.message || "Could not connect to Ripple API.")
     }
 
     setLoading(false)
@@ -60,15 +67,16 @@ function App() {
           Analyze Your Code
         </h2>
 
+        {/* GitHub URL */}
         <div style={{ marginBottom: "20px" }}>
           <label style={{ display: "block", marginBottom: "8px", color: "#c4b5fd", fontSize: "0.875rem", fontWeight: 500 }}>
-            Project Path
+            GitHub Repository URL
           </label>
           <input
             type="text"
-            value={projectPath}
-            onChange={(e) => setProjectPath(e.target.value)}
-            placeholder="C:\Users\...\flaskr"
+            value={githubUrl}
+            onChange={(e) => setGithubUrl(e.target.value)}
+            placeholder="https://github.com/username/repo"
             style={{
               width: "100%",
               padding: "12px 16px",
@@ -83,6 +91,7 @@ function App() {
           />
         </div>
 
+        {/* Changed File */}
         <div style={{ marginBottom: "24px" }}>
           <label style={{ display: "block", marginBottom: "8px", color: "#c4b5fd", fontSize: "0.875rem", fontWeight: 500 }}>
             Changed File
@@ -106,9 +115,10 @@ function App() {
           />
         </div>
 
+        {/* Button */}
         <button
           onClick={handleAnalyze}
-          disabled={loading || !projectPath || !changedFile}
+          disabled={loading || !githubUrl || !changedFile}
           style={{
             width: "100%",
             padding: "14px",
@@ -122,13 +132,22 @@ function App() {
             transition: "opacity 0.2s"
           }}
         >
-          {loading ? "⏳ Analyzing..." : "⚡ Analyze Impact"}
+          {loading ? "⏳ Cloning & Analyzing..." : "⚡ Analyze Impact"}
         </button>
 
+        {/* Error */}
         {error && (
-          <p style={{ color: "#f87171", marginTop: "12px", fontSize: "0.875rem" }}>
+          <div style={{
+            marginTop: "16px",
+            padding: "12px 16px",
+            background: "#2d1b1b",
+            borderRadius: "8px",
+            border: "1px solid #f87171",
+            color: "#f87171",
+            fontSize: "0.875rem"
+          }}>
             ❌ {error}
-          </p>
+          </div>
         )}
       </div>
 
@@ -136,6 +155,7 @@ function App() {
       {result && (
         <div style={{ maxWidth: "640px", margin: "0 auto" }}>
 
+          {/* Stats Row */}
           <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
             <div style={{
               flex: 1, background: "#1e1e2e", borderRadius: "12px",
@@ -155,6 +175,7 @@ function App() {
             </div>
           </div>
 
+          {/* Affected Files */}
           {result.affected_files.length > 0 && (
             <div style={{
               background: "#1e1e2e", borderRadius: "12px",
@@ -176,6 +197,7 @@ function App() {
             </div>
           )}
 
+          {/* AI Explanation */}
           <div style={{
             background: "#1e1e2e", borderRadius: "12px",
             padding: "24px", border: "1px solid #8b5cf6"
