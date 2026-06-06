@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+
 function App() {
   const [projectPath, setProjectPath] = useState("")
   const [changedFile, setChangedFile] = useState("")
@@ -14,7 +16,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/analyze?project_path=${encodeURIComponent(projectPath)}&changed_file=${encodeURIComponent(changedFile)}`,
+        `${API_URL}/analyze?project_path=${encodeURIComponent(projectPath)}&changed_file=${encodeURIComponent(changedFile)}`,
         { method: "POST" }
       )
       const data = await response.json()
@@ -58,7 +60,6 @@ function App() {
           Analyze Your Code
         </h2>
 
-        {/* Project Path */}
         <div style={{ marginBottom: "20px" }}>
           <label style={{ display: "block", marginBottom: "8px", color: "#c4b5fd", fontSize: "0.875rem", fontWeight: 500 }}>
             Project Path
@@ -82,7 +83,6 @@ function App() {
           />
         </div>
 
-        {/* Changed File */}
         <div style={{ marginBottom: "24px" }}>
           <label style={{ display: "block", marginBottom: "8px", color: "#c4b5fd", fontSize: "0.875rem", fontWeight: 500 }}>
             Changed File
@@ -106,7 +106,6 @@ function App() {
           />
         </div>
 
-        {/* Button */}
         <button
           onClick={handleAnalyze}
           disabled={loading || !projectPath || !changedFile}
@@ -126,7 +125,6 @@ function App() {
           {loading ? "⏳ Analyzing..." : "⚡ Analyze Impact"}
         </button>
 
-        {/* Error */}
         {error && (
           <p style={{ color: "#f87171", marginTop: "12px", fontSize: "0.875rem" }}>
             ❌ {error}
@@ -138,7 +136,6 @@ function App() {
       {result && (
         <div style={{ maxWidth: "640px", margin: "0 auto" }}>
 
-          {/* Stats Row */}
           <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
             <div style={{
               flex: 1, background: "#1e1e2e", borderRadius: "12px",
@@ -158,7 +155,6 @@ function App() {
             </div>
           </div>
 
-          {/* Affected Files */}
           {result.affected_files.length > 0 && (
             <div style={{
               background: "#1e1e2e", borderRadius: "12px",
@@ -180,7 +176,6 @@ function App() {
             </div>
           )}
 
-          {/* AI Explanation */}
           <div style={{
             background: "#1e1e2e", borderRadius: "12px",
             padding: "24px", border: "1px solid #8b5cf6"
