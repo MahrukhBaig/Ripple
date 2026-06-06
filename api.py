@@ -1,22 +1,22 @@
 import os
+import shutil
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from analyzer.parser import scan_project
+from analyzer.parser import scan_project, clone_repo
 from analyzer.graph import build_graph, get_impact
 from analyzer.bob import explain_impact
 
 load_dotenv()
 
-# Allowed origins — production mein sirf apna frontend
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🌊 Ripple API starting...")
+    print("Ripple API starting...")
     yield
-    print("🌊 Ripple API shutting down...")
+    print("Ripple API shutting down...")
 
 app = FastAPI(
     title="Ripple API",
@@ -37,28 +37,33 @@ async def root():
     return {"message": "Ripple API is live 🌊", "version": "1.0.0"}
 
 @app.post("/analyze")
-async def analyze(project_path: str, changed_file: str):
+async def analyze(github_url: str, changed_file: str):
     """
-    Project scan karo, impact trace karo,
-    aur AI se explanation lo.
+    Clone a GitHub repo, trace impact of a changed file,
+    and return an AI explanation.
     """
+    temp_dir = None
+
     try:
-        # Step 1: Project scan
-        scan_result = scan_project(project_path)
+        # Step 1: Clone the repo into a temporary directory
+        temp_dir = clone_repo(github_url)
+
+        # Step 2: Scan all Python files
+        scan_result = scan_project(temp_dir)
 
         if not scan_result:
             raise HTTPException(
                 status_code=404,
-                detail=f"No Python files found at: {project_path}"
+                detail=f"No Python files found in repo: {github_url}"
             )
 
-        # Step 2: Graph banao
+        # Step 3: Build dependency graph
         G = build_graph(scan_result)
 
-        # Step 3: Impact trace karo
+        # Step 4: Trace impact of the changed file
         affected = get_impact(G, changed_file)
 
-        # Step 4: AI se explanation lo
+        # Step 5: Get AI explanation
         explanation = await explain_impact(changed_file, list(affected))
 
         return {
@@ -77,18 +82,26 @@ async def analyze(project_path: str, changed_file: str):
             detail=f"Analysis failed: {str(e)}"
         )
 
+    finally:
+        # Always clean up the temporary directory
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
 @app.get("/graph")
-async def graph(project_path: str):
+async def graph(github_url: str):
     """
-    Poora dependency graph return karta hai.
+    Clone a GitHub repo and return its full dependency graph.
     """
+    temp_dir = None
+
     try:
-        scan_result = scan_project(project_path)
+        temp_dir = clone_repo(github_url)
+        scan_result = scan_project(temp_dir)
 
         if not scan_result:
             raise HTTPException(
                 status_code=404,
-                detail=f"No Python files found at: {project_path}"
+                detail=f"No Python files found in repo: {github_url}"
             )
 
         G = build_graph(scan_result)
@@ -106,3 +119,7 @@ async def graph(project_path: str):
             status_code=500,
             detail=f"Graph generation failed: {str(e)}"
         )
+
+    finally:
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
