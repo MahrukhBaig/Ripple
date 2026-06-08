@@ -1,17 +1,48 @@
 import ast
 import os
 import tempfile
-import pygit2
+import zipfile
+import urllib.request
 
 
 def clone_repo(github_url):
     """
-    Clone a GitHub repository into a temporary directory
-    using pygit2 (doesn't require git binary).
+    Clone a GitHub repository by downloading as ZIP.
+    This avoids needing git or libgit2 binaries.
     Returns the path to the cloned repo.
     """
     temp_dir = tempfile.mkdtemp()
-    pygit2.clone_repository(github_url, temp_dir)
+    
+    # Convert GitHub URL to raw ZIP download URL
+    # https://github.com/user/repo -> https://github.com/user/repo/archive/refs/heads/main.zip
+    if github_url.endswith('.git'):
+        github_url = github_url[:-4]
+    
+    zip_url = f"{github_url}/archive/refs/heads/main.zip"
+    zip_path = os.path.join(temp_dir, "repo.zip")
+    
+    # Download the ZIP
+    urllib.request.urlretrieve(zip_url, zip_path)
+    
+    # Extract it
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(temp_dir)
+    
+    # Find the extracted folder and move its contents to temp_dir root
+    extracted_folders = [f for f in os.listdir(temp_dir) if os.path.isdir(os.path.join(temp_dir, f)) and f != '__pycache__']
+    if extracted_folders:
+        extracted_folder = os.path.join(temp_dir, extracted_folders[0])
+        for item in os.listdir(extracted_folder):
+            src = os.path.join(extracted_folder, item)
+            dst = os.path.join(temp_dir, item)
+            if os.path.isdir(src):
+                import shutil
+                shutil.move(src, dst)
+            else:
+                os.rename(src, dst)
+        os.rmdir(extracted_folder)
+    
+    os.remove(zip_path)
     return temp_dir
 
 
