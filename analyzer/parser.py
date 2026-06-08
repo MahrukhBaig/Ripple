@@ -1,21 +1,17 @@
 import ast
 import os
 import tempfile
-import subprocess
+import pygit2
 
 
 def clone_repo(github_url):
     """
     Clone a GitHub repository into a temporary directory
-    using subprocess git command.
+    using pygit2 (doesn't require git binary).
     Returns the path to the cloned repo.
     """
     temp_dir = tempfile.mkdtemp()
-    subprocess.run(
-        ["git", "clone", "--depth=1", github_url, temp_dir],
-        check=True,
-        capture_output=True
-    )
+    pygit2.clone_repository(github_url, temp_dir)
     return temp_dir
 
 
