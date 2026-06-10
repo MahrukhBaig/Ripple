@@ -22,11 +22,13 @@ def get_impact(G, changed_file):
     kaunsi files affect hongi.
     BFS use karta hai — graph mein ripple effect trace karta hai.
     """
+    if changed_file not in G:
+        return set()
+
     affected = set()
 
     for node in G.nodes():
-        if node != changed_file:
-            if nx.has_path(G, node, changed_file):
-                affected.add(node)
+        if node != changed_file and nx.has_path(G, node, changed_file):
+            affected.add(node)
 
     return affected
