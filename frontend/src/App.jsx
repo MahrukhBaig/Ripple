@@ -73,33 +73,29 @@ function App() {
       </nav>
 
       {/* Hero */}
-      <div style={{
-        textAlign: "center",
-        padding: "64px 40px 48px",
-        borderBottom: "1px solid #1a1a2a"
-      }}>
-        <h1 style={{
-          fontSize: "2.75rem",
-          fontWeight: 700,
-          margin: "0 0 16px",
-          letterSpacing: "-0.03em",
-          background: "linear-gradient(135deg, #fff 40%, #818cf8)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
-          See the ripple before<br />you make the wave
-        </h1>
-        <p style={{
-          fontSize: "1.05rem",
-          color: "#64748b",
-          margin: 0,
-          maxWidth: "480px",
-          marginInline: "auto",
-          lineHeight: 1.6
-        }}>
-          Paste any GitHub repo, name a file — Ripple maps exactly what breaks before you touch a line of code.
-        </p>
-      </div>
+<div style={{
+  textAlign: "center",
+  padding: "40px 40px 32px",
+  borderBottom: "1px solid #1a1a2a"
+}}>
+  <h1 style={{
+    fontSize: "1.75rem",
+    fontWeight: 700,
+    margin: "0 0 10px",
+    letterSpacing: "-0.02em",
+    color: "#fff"
+  }}>
+    See the ripple before you make the wave
+  </h1>
+  <p style={{
+    fontSize: "0.9rem",
+    color: "#4a5568",
+    margin: 0,
+    lineHeight: 1.6
+  }}>
+    Paste any GitHub repo, name a file — Ripple maps exactly what breaks before you touch a line of code.
+  </p>
+</div>
 
       {/* Main Two Column Layout */}
       <div style={{

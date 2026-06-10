@@ -349,18 +349,11 @@ pytest --cov=analyzer tests/
 
 ### Frontend (Vercel)
 
-1. Push to GitHub
-2. Connect repository to Vercel
-3. Set environment variable: `VITE_API_URL=https://your-backend.railway.app`
-4. Deploy automatically on push
+https://ripple-lime.vercel.app/
 
 ### Backend (Railway)
 
-1. Connect GitHub repository to Railway
-2. Set environment variables in Railway dashboard:
-   - `GROQ_API_KEY`
-   - `ALLOWED_ORIGINS`
-3. Railway automatically deploys on push
+web-production-d4fa0.up.railway.app
 ---
 
 ## 🤝 Contributing
