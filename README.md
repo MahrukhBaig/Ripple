@@ -331,20 +331,6 @@ Return explanation to frontend
 
 ---
 
-## 🧪 Testing
-
-### Run Tests
-```bash
-python -m pytest tests/
-```
-
-### Test Coverage
-```bash
-pytest --cov=analyzer tests/
-```
-
----
-
 ## 📤 Deployment
 
 ### Frontend (Vercel)
@@ -353,7 +339,7 @@ https://ripple-lime.vercel.app/
 
 ### Backend (Railway)
 
-web-production-d4fa0.up.railway.app
+https://web-production-d4fa0.up.railway.app
 ---
 
 ## 🤝 Contributing
